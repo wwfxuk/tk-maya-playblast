@@ -44,20 +44,22 @@ class PostPlayblast(Hook):
             try:
                 # get all required template
                 template_work = app.get_template("template_work")
-                template_shot = app.get_template("template_shot")
-                template_sequence = app.get_template("template_sequence")
+                templates = [
+                    app.get_template("template_shot"),
+                    app.get_template("template_sequence")
+                ]
                 # use current scene name to create valid QT file names
                 scenename = pm.sceneName()
                 fields = template_work.get_fields(scenename)
-                destination = [template_shot.apply_fields(fields), 
-                               template_sequence.apply_fields(fields)]
                 # make sure that destination folder is exists
-                for each in destination:
-                    if not os.path.exists(os.path.dirname(each)):
-                        os.makedirs(os.path.dirname(each))
-                # copy local file to destination
-                for each in destination:
-                    shutil.copy(data, each)
+                for template in templates:
+                    if not template:
+                        continue
+                    destination = template.apply_fields(fields)
+                    dirname = os.path.dirname(destination)
+                    if not os.path.exists(dirname):
+                        os.makedirs(dirname)
+                    shutil.copy(data, destination)
             except:
                 print "Error in copying file %s" % data
             return True
@@ -76,9 +78,6 @@ class PostPlayblast(Hook):
             app.log_debug("Setting up shotgun version entity...")
             
             try:
-                filters = [ ["Project", "is", data["project"]],
-                            ["code", "is", data["code"]],
-                            ]
                 # check if a version entity with same code exists in shotgun
                 # if none, create a new version Entity with qtfile name as its code
                 result=None
@@ -101,9 +100,6 @@ class PostPlayblast(Hook):
             app.log_debug("Send qtfile to Shotgun")
             try:
                 moviePath = data["path"]
-                filters =[ ["Project", "is", data["project"]],
-                           ["id", "is", data["version_id"]],
-                           ]
                 result=None
                 if os.path.exists(moviePath):
                     app.log_debug("Uploading movie to Shotgun: %s" % moviePath)

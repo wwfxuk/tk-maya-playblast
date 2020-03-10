@@ -18,6 +18,7 @@ configuration:
         required_fields: []
         optional_fields: "*"
         description: "Template defining the secondary output location of sequence movie files on the main storage file system. The content is duplicate from shots"
+        allows_empty: True
     
     hook_setup_window:
         type: hook

@@ -21,9 +21,6 @@ from tank import Hook
 
 PLAYBLAST_WINDOW = "Playblast Window"
 
-DEFAULT_WIDTH = 720
-DEFAULT_HEIGHT = 540
-
 MODEL_EDITOR_PARAMS = {
     "activeView": True,
     "cameras": False,
@@ -137,29 +134,20 @@ class SetupWindow(Hook):
                                 context's shotgun instance
                 """
                 app = self.parent
-                project = app.context.project
-                sg = app.context.tank.shotgun
-                # set filters and search fields for entity type "Project"
-                filters=[["id", "is", project['id']],]
-                fields=["sg_width", "sg_height"]
-                result=sg.find_one("Project", filters, fields)
-                # with result, set parameters accordingly or use default otherwise
-                if result:
-                    videoWidth = result.get("sg_width", DEFAULT_WIDTH)
-                    videoHeight = result.get("sg_height", DEFAULT_HEIGHT)
+                
+                videoWidth = cmds.getAttr("defaultResolution.width")
+                videoHeight = cmds.getAttr("defaultResolution.height")
 
-                # Find first camera matching pattern and set as active camera
-                # if not use default current active camera
-                camera_name_pattern = app.get_setting( "camera_name_pattern", "persp" )
-                cameraList = [c.name() for c in pm.ls(type="camera", r=True) if re.search( camera_name_pattern, c.name() )]
-                if not "cam" in MODEL_EDITOR_PARAMS.keys() and cameraList:
-                    MODEL_EDITOR_PARAMS["cam"] = cameraList[0]
+                cameraTrans = cmds.modelEditor( 'modelPanel4', q=True, cam=True )
+                camera = cmds.ls(cameraTrans, dag=True, cameras=True)[0]
+                if not "cam" in MODEL_EDITOR_PARAMS.keys() and camera:
+                    MODEL_EDITOR_PARAMS["cam"] = camera
                     
                 # Give Viewport 2.0 renderer only for Maya 2015++
-                # mayaVersionString = cmds.about(version=True)
-                # mayaVersion = int(mayaVersionString[:4]) if len(mayaVersionString) >= 4 else 0
-                # if mayaVersion >= 2015:
-                #     params[ "rendererName" ] = "vp2Renderer"
+                mayaVersionString = cmds.about(version=True)
+                mayaVersion = int(mayaVersionString[:4]) if len(mayaVersionString) >= 4 else 0
+                if mayaVersion >= 2015:
+                    MODEL_EDITOR_PARAMS[ "rendererName" ] = "vp2Renderer"
 
                 # Create window
                 if pm.windowPref( PLAYBLAST_WINDOW, exists=True ):
