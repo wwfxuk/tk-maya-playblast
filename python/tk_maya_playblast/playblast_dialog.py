@@ -5,7 +5,6 @@ import sys
 import threading
 
 from tank.platform.qt import QtCore, QtGui
-from .ui.playblast_dialog import Ui_PlayblastDialog
 
 SCALE_OPTIONS = [50, 100]
 
@@ -19,14 +18,13 @@ class PlayblastDialog(QtGui.QWidget):
         Constructor
         """
         # first, call the base class and let it do its thing.
-        QtGui.QWidget.__init__(self, parent)
+        super(PlayblastDialog, self).__init__(parent)
 
         self._app = app
         self._handler = handler
+
+        self._build_ui()
         
-        # now load in the UI that was created in the UI designer
-        self._ui = Ui_PlayblastDialog() 
-        self._ui.setupUi(self)
         self.__initComponents()
         
         # most of the useful accessors are available through the Application class instance
@@ -39,26 +37,50 @@ class PlayblastDialog(QtGui.QWidget):
         # - A tk API instance, via self._app.tk 
         
         # lastly, set up our very basic UI
-        # self._ui.context.setText("Current Shot: %s" % self._app.context)
-        self._ui.btnPlayblast.clicked.connect(self.doPlayblast)
+        # self.context.setText("Current Shot: %s" % self._app.context)
+        self.btnPlayblast.clicked.connect(self.doPlayblast)
+
+    def _build_ui(self):
+        self.resize(468, 67)
+        layout = QtGui.QGridLayout(self)
+        self.cmbPercentage = QtGui.QComboBox(self)
+        layout.addWidget(self.cmbPercentage, 0, 0)
+        self.chbCreateVersion = QtGui.QCheckBox("Create New Version", self)
+        self.chbCreateVersion.setChecked(False)
+        layout.addWidget(self.chbCreateVersion, 0, 1)
+        self.chbUploadToShotgun = QtGui.QCheckBox("Upload to Shotgun", self)
+        self.chbUploadToShotgun.setChecked(True)
+        self.chbUploadToShotgun.setEnabled(False)
+        self.chbCreateVersion.toggled.connect(self.chbUploadToShotgun.setEnabled)
+        layout.addWidget(self.chbUploadToShotgun, 0, 2)
+        self.chbShowViewer = QtGui.QCheckBox("Show Viewer", self)
+        self.chbShowViewer.setChecked(True)
+        layout.addWidget(self.chbShowViewer, 0, 3)
+        self.btnPlayblast = QtGui.QPushButton("Playblast", self)
+        self.btnPlayblast.setMinimumSize(450, 0)
+        layout.addWidget(self.btnPlayblast, 1, 0, 1, 4)
 
     def __initComponents(self):
         # Setting up playblast resolution percentage. Customizable through
         # optional "scale_options" field in app settings.
         scaleIntList = self._app.get_setting("scale_options", SCALE_OPTIONS)
         for percentInt in scaleIntList:
-            self._ui.cmbPercentage.addItem( "%d%%" % percentInt, userData=percentInt )
+            self.cmbPercentage.addItem( "%d%%" % percentInt, userData=percentInt )
 
     def doPlayblast(self):
         overridePlayblastParams = {}
 
-        uploadToShotgun = self._ui.chbUploadToShotgun.isChecked()
+        createVersion = self.chbCreateVersion.isChecked()
+        self._handler.setCreateVersion( createVersion )
+
+        uploadToShotgun = self.chbUploadToShotgun.isChecked()
         self._handler.setUploadToShotgun( uploadToShotgun )
 
-        showViewer = self._ui.chbShowViewer.isChecked()
+        showViewer = self.chbShowViewer.isChecked()
+        self._handler.setShowViewer( showViewer )
         overridePlayblastParams["viewer"] = showViewer
 
-        percentInt = self._ui.cmbPercentage.itemData( self._ui.cmbPercentage.currentIndex() )
+        percentInt = self.cmbPercentage.itemData( self.cmbPercentage.currentIndex() )
         overridePlayblastParams["percent"] = percentInt
         self._handler.doPlayblast(**overridePlayblastParams)
 
