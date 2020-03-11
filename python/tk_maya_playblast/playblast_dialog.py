@@ -41,8 +41,8 @@ class PlayblastDialog(QtGui.QWidget):
         self.btnPlayblast.clicked.connect(self.doPlayblast)
 
     def _build_ui(self):
-        self.setGeometry(0, 0, 468, 67)
-        layout = QtGui.QGridLayout()
+        self.resize(468, 67)
+        layout = QtGui.QGridLayout(self)
         self.cmbPercentage = QtGui.QComboBox(self)
         layout.addWidget(self.cmbPercentage, 0, 0)
         self.chbCreateVersion = QtGui.QCheckBox("Create New Version", self)
@@ -59,7 +59,6 @@ class PlayblastDialog(QtGui.QWidget):
         self.btnPlayblast = QtGui.QPushButton("Playblast", self)
         self.btnPlayblast.setMinimumSize(450, 0)
         layout.addWidget(self.btnPlayblast, 1, 0, 1, 4)
-        self.setLayout(layout)
 
     def __initComponents(self):
         # Setting up playblast resolution percentage. Customizable through
