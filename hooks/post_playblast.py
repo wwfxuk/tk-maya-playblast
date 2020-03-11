@@ -57,7 +57,7 @@ class PostPlayblast(Hook):
                         continue
                     destination = template.apply_fields(fields)
                     dirname = os.path.dirname(destination)
-                    if not os.path.exists(dirname):
+                    if not os.path.isdir(dirname):
                         os.makedirs(dirname)
                     shutil.copy(data, destination)
             except:
