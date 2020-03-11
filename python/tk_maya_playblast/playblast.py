@@ -90,16 +90,16 @@ class PlayblastManager(object):
                     resultPlayblastPath = pm.playblast( **playblastParams )
                     playblastSuccessful = True
                 except RuntimeError, e:
-                    if not os.path.exists(localPlayblastPath):
-                        result = QtGui.QMessageBox.critical(None, u"Playblast Error",
-                                                            "%s" % unicode(e),
-                                                            QtGui.QMessageBox.Retry | QtGui.QMessageBox.Abort)
-                        if result==QtGui.QMessageBox.Abort:
-                            self._app.log_error("Playblast aborted")
-                            return
-                    else:
+                    if os.path.exists(localPlayblastPath):
                         viewer_issues = True
                         playblastSuccessful = True
+                    else:
+                        result = QtGui.QMessageBox.critical(None, u"Playblast Error",
+                                                            unicode(e),
+                                                            QtGui.QMessageBox.Retry | QtGui.QMessageBox.Abort)
+                        if result == QtGui.QMessageBox.Abort:
+                            self._app.logger.exception("Playblast aborted")
+                            return
                 finally:
                     # restore HUD state
                     self._app.execute_hook("hook_setup_window", action="hud_unset", data=visibleHUDs)
@@ -111,11 +111,11 @@ class PlayblastManager(object):
         result = self._app.execute_hook("hook_post_playblast", action="copy_file", data=localPlayblastPath)
         
         if result:
-            self._app.log_info("Playblast local file created: %s" % result)
+            self._app.logger.info("Playblast local file created: %s", result)
 
         if self.__showViewer and viewer_issues:
-            self._app.log_info("Opening RV...")
-            subprocess.call("rez env rv -- rv %s" % localPlayblastPath, shell=True)
+            self._app.logger.info("Opening RV...")
+            subprocess.call(["rez", "env" , "rv", "--", "rv", str(localPlayblastPath)])
 
         if self.__createVersion:
             # register new Version entity in shotgun or update existing version, minimize shotgun data
@@ -138,9 +138,11 @@ class PlayblastManager(object):
             # upload QT file if creation or update process run succesfully
             if result and self.__uploadToShotgun:
                 result = self._app.execute_hook("hook_post_playblast", action="upload_movie",
-                                                data=dict(path=data["sg_path_to_movie"],
-                                                        project=project,
-                                                        version_id=result["id"]))
+                                                data={
+                                                    "path": data["sg_path_to_movie"],
+                                                    "project": project,
+                                                    "version_id": result["id"],
+                                                })
 
         self._app.log_info("Playblast finished")
 

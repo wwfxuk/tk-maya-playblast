@@ -138,16 +138,23 @@ class SetupWindow(Hook):
                 videoWidth = cmds.getAttr("defaultResolution.width")
                 videoHeight = cmds.getAttr("defaultResolution.height")
 
-                cameraTrans = cmds.modelEditor( 'modelPanel4', q=True, cam=True )
+                panelName = cmds.getPanel(withFocus=True)
+                if panelName not in cmds.getPanel(type="modelPanel"):
+                    message = "Please select a viewport before trying to render"
+                    self.logger.error(message)
+                    QtGui.QMessageBox.Critical(None, "No Viewport selected", message)
+                    raise RuntimeError(message)
+
+                cameraTrans = cmds.modelEditor(panelName, q=True, cam=True)
                 camera = cmds.ls(cameraTrans, dag=True, cameras=True)[0]
-                if not "cam" in MODEL_EDITOR_PARAMS.keys() and camera:
+                if "cam" not in MODEL_EDITOR_PARAMS:
                     MODEL_EDITOR_PARAMS["cam"] = camera
                     
                 # Give Viewport 2.0 renderer only for Maya 2015++
                 mayaVersionString = cmds.about(version=True)
                 mayaVersion = int(mayaVersionString[:4]) if len(mayaVersionString) >= 4 else 0
                 if mayaVersion >= 2015:
-                    MODEL_EDITOR_PARAMS[ "rendererName" ] = "vp2Renderer"
+                    MODEL_EDITOR_PARAMS["rendererName"] = "vp2Renderer"
 
                 # Create window
                 if pm.windowPref( PLAYBLAST_WINDOW, exists=True ):
