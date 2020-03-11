@@ -18,6 +18,7 @@ from contextlib import contextmanager
 
 import tank
 from tank import Hook
+from sgtk.platform.qt import QtGui
 
 PLAYBLAST_WINDOW = "Playblast Window"
 
@@ -142,7 +143,7 @@ class SetupWindow(Hook):
                 if panelName not in cmds.getPanel(type="modelPanel"):
                     message = "Please select a viewport before trying to render"
                     self.logger.error(message)
-                    QtGui.QMessageBox.Critical(None, "No Viewport selected", message)
+                    QtGui.QMessageBox.critical(None, "No Viewport selected", message)
                     raise RuntimeError(message)
 
                 cameraTrans = cmds.modelEditor(panelName, q=True, cam=True)
