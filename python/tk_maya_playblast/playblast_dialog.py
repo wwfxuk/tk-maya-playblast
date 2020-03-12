@@ -78,7 +78,6 @@ class PlayblastDialog(QtGui.QWidget):
 
         showViewer = self.chbShowViewer.isChecked()
         self._handler.setShowViewer( showViewer )
-        overridePlayblastParams["viewer"] = showViewer
 
         percentInt = self.cmbPercentage.itemData( self.cmbPercentage.currentIndex() )
         overridePlayblastParams["percent"] = percentInt
