@@ -81,7 +81,6 @@ class PlayblastManager(object):
         with createWindow():
             playblastParams.update(overridePlayblastParams)
             playblastSuccessful = False
-            viewer_issues = False
             while not playblastSuccessful:
                 try:
                     # set required visibleHUDs from hook
@@ -91,7 +90,6 @@ class PlayblastManager(object):
                     playblastSuccessful = True
                 except RuntimeError, e:
                     if os.path.exists(localPlayblastPath):
-                        viewer_issues = True
                         playblastSuccessful = True
                     else:
                         result = QtGui.QMessageBox.critical(None, u"Playblast Error",
@@ -113,7 +111,7 @@ class PlayblastManager(object):
         if result:
             self._app.logger.info("Playblast local file created: %s", result)
 
-        if self.__showViewer and viewer_issues:
+        if self.__showViewer:
             self._app.logger.info("Opening RV...")
             subprocess.call(["rez", "env" , "rv", "--", "rv", str(localPlayblastPath)])
 
