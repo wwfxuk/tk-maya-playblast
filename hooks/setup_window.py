@@ -40,7 +40,7 @@ MODEL_EDITOR_PARAMS = {
     "hulls": False,
     "ignorePanZoom": False,
     "ikHandles": False,
-    "imagePlane": False,
+    "imagePlane": True,
     "joints": False,
     "lights": False,
     "locators": False,
