@@ -148,8 +148,7 @@ class SetupWindow(Hook):
 
                 cameraTrans = cmds.modelEditor(panelName, q=True, cam=True)
                 camera = cmds.ls(cameraTrans, dag=True, cameras=True)[0]
-                if "cam" not in MODEL_EDITOR_PARAMS:
-                    MODEL_EDITOR_PARAMS["cam"] = camera
+                MODEL_EDITOR_PARAMS["cam"] = camera
                     
                 # Give Viewport 2.0 renderer only for Maya 2015++
                 mayaVersionString = cmds.about(version=True)
