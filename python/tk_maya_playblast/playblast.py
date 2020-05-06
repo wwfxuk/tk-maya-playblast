@@ -13,7 +13,6 @@ class PlayblastManager(object):
     __upload_to_shotgun = True
     __create_version = False
     __show_viewer = True
-    __template_name = None
 
     """
     Main playblast functionality
@@ -78,9 +77,7 @@ class PlayblastManager(object):
             filename=local_playblast_path
         )
         # get window and editor parameters from hook
-        with self._app.execute_hook_method(
-            "hook_setup_window", "create_window", template_name=self.__template_name
-        ) as model_editor:
+        with self._app.execute_hook_method("hook_setup_window", "create_window") as model_editor:
             playblast_params.update(override_playblast_params)
             playblast_params["editorPanelName"] = model_editor
             self._app.logger.debug(pprint.pformat(playblast_params))
@@ -167,7 +164,3 @@ class PlayblastManager(object):
     def set_shot_viewer(self, value):
         self._app.logger.debug("Show viewer set to %s" % value)
         self.__show_viewer = value
-
-    def set_template_name(self, name):
-        self._app.logger.debug("%s template chosen", name)
-        self.__template_name = name

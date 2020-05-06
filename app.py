@@ -22,11 +22,8 @@ class BasePlayblast(Application):
         """
         Called as the application is being initialized
         """
-        self.engine.register_command("Playblast...", self.run_app)
-        self._model_editor_templates = dict([
-            (item["name"], item["args"])
-            for item in self.get_setting("model_editor_templates")
-        ])
+        self.engine.register_command(self.get_setting("menu_name"), self.run_app)
+        self._model_editor_parameters = self.get_setting("model_editor_parameters")
         self._playblast_parameters = self.get_setting("playblast_parameters")
 
     @property
@@ -34,8 +31,8 @@ class BasePlayblast(Application):
         return self._playblast_parameters
 
     @property
-    def model_editor_templates(self):
-        return self._model_editor_templates
+    def model_editor_parameters(self):
+        return self._model_editor_parameters
 
     def destroy_app(self):
         """

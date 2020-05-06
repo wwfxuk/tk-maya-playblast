@@ -9,7 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import os
-import re
+import pprint
 
 import maya.cmds as cmds
 import pymel.core as pm
@@ -19,57 +19,9 @@ from contextlib import contextmanager
 import sgtk
 from sgtk.platform.qt import QtGui
 
+
 PLAYBLAST_WINDOW = "Playblast Window"
 
-MODEL_EDITOR_PARAMS = {
-    "activeView": True,
-    "cameras": False,
-    "controlVertices": False,
-    "deformers": False,
-    "dimensions": False,
-    "displayAppearance": "smoothShaded",
-    "displayLights": "default",
-    "displayTextures": True,
-    "dynamicConstraints": False,
-    "fogging": False,
-    "follicles": False,
-    "grid": False,
-    "handles": False,
-    "headsUpDisplay": True,
-    "hulls": False,
-    "ignorePanZoom": False,
-    "ikHandles": False,
-    "imagePlane": True,
-    "joints": False,
-    "lights": False,
-    "locators": False,
-    "manipulators": False,
-    "nurbsCurves": False,
-    "nurbsSurfaces": False,
-    "pivots": False,
-    "planes": False,
-    "selectionHiliteDisplay": False,
-    "shadows": False,
-    "sortTransparent": True,
-    "strokes": True,
-    "textures": True,
-    "useDefaultMaterial": False,
-    "wireframeOnShaded": False,
-    }
-
-PLAYBLAST_PARAMS = {
-    "forceOverwrite": True,
-    "format": "qt",
-    "framePadding": 4,
-    "compression": "H.264",
-    "offScreen": True,
-    "percent": 100,
-    "showOrnaments": True,
-    "viewer": False,
-    "sequenceTime": 0,
-    "clearCache": True,
-    "quality": 70,
-    }
 
 class SetupWindow(sgtk.Hook):
     """
@@ -117,7 +69,7 @@ class SetupWindow(sgtk.Hook):
         return playblast_params
 
     @contextmanager
-    def create_window(self, template_name=""):
+    def create_window(self):
         # setting up context window for playblast
 
         """ try to get data from shotgun project fields
@@ -125,7 +77,7 @@ class SetupWindow(sgtk.Hook):
                         context's shotgun instance
         """
         app = self.parent
-        model_editor_params = app.model_editor_templates.get(template_name, {})
+        model_editor_params = app.model_editor_parameters
 
         video_width = cmds.getAttr("defaultResolution.width")
         video_height = cmds.getAttr("defaultResolution.height")
@@ -146,6 +98,18 @@ class SetupWindow(sgtk.Hook):
         mayaVersion = int(mayaVersionString[:4]) if len(mayaVersionString) >= 4 else 0
         if mayaVersion >= 2015:
             model_editor_params["rendererName"] = "vp2Renderer"
+            orig_lineAAEnable = cmds.getAttr("hardwareRenderingGlobals.lineAAEnable")
+            cmds.setAttr("hardwareRenderingGlobals.lineAAEnable", True)
+            orig_multiSampleEnable = cmds.getAttr("hardwareRenderingGlobals.multiSampleEnable")
+            cmds.setAttr("hardwareRenderingGlobals.multiSampleEnable", True)
+            orig_multiSampleCount = cmds.getAttr("hardwareRenderingGlobals.multiSampleCount")
+            cmds.setAttr("hardwareRenderingGlobals.multiSampleCount", 16)
+
+        orig_holdOuts = {}
+        if app.get_setting("use_holdout"):
+            for item in cmds.ls(type="mesh", long=True):
+                orig_holdOuts[item] = cmds.getAttr("{}.holdOut".format(item))
+                cmds.setAttr("{}.holdOut".format(item), True)
 
         # Create window
         if pm.windowPref(PLAYBLAST_WINDOW, exists=True):
@@ -177,7 +141,6 @@ class SetupWindow(sgtk.Hook):
         # Show window
         pm.setFocus(editor)
         pm.showWindow(window)
-        import pprint
         pm.refresh()
         app.logger.debug(pprint.pformat(model_editor_params))
         try:
@@ -186,4 +149,9 @@ class SetupWindow(sgtk.Hook):
             traceback.print_exc()
         finally:
             pm.deleteUI(window)
-
+            if mayaVersion >= 2015:
+                cmds.setAttr("hardwareRenderingGlobals.lineAAEnable", orig_lineAAEnable)
+                cmds.setAttr("hardwareRenderingGlobals.multiSampleEnable", orig_multiSampleEnable)
+                cmds.setAttr("hardwareRenderingGlobals.multiSampleCount", orig_multiSampleCount)
+            for item, state in orig_holdOuts.items():
+                cmds.setAttr("{}.holdOut".format(item), state)

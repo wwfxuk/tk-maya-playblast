@@ -1,6 +1,11 @@
 # expected fields in the configuration file for this engine
 configuration:
 
+    menu_name:
+        type: str
+        default_value: "Playblast..."
+        description: The name that will be shown in the Shotgun menu.
+
     scale_options:
         type: list
         values: {type: int}
@@ -36,19 +41,47 @@ configuration:
         default_value: post_playblast
         description: "Specify a hook that will be executed after actual playblast process"
 
-    model_editor_templates:
-        type: list
+    model_editor_parameters:
+        type: dict
         description:
-            "Settings for model editor templates. Give it a name and
-            specify the args as defined in
+            "Settings for the model editor.
+            Specify the args as defined in
             http://help.autodesk.com/cloudhelp/2019/ENU/Maya-Tech-Docs/CommandsPython/modelEditor.html
             'cam' and 'rendererName', if not defined, are set by the app.
-            'activeView' is implied by the app and will be overridden"
-        values: 
-            type: dict
-            items:
-                name: {type: str}
-                args: {type: dict}
+            'activeView' is not required."
+        default_value:
+            "cameras": False
+            "controlVertices": False
+            "deformers": False
+            "dimensions": False
+            "displayAppearance": "smoothShaded"
+            "displayLights": "default"
+            "displayTextures": True
+            "dynamicConstraints": False
+            "fogging": False
+            "follicles": False
+            "grid": False
+            "handles": False
+            "headsUpDisplay": True
+            "hulls": False
+            "ignorePanZoom": False
+            "ikHandles": False
+            "imagePlane": True
+            "joints": False
+            "lights": False
+            "locators": False
+            "manipulators": False
+            "nurbsCurves": False
+            "nurbsSurfaces": False
+            "pivots": False
+            "planes": False
+            "selectionHiliteDisplay": False
+            "shadows": False
+            "sortTransparent": True
+            "strokes": True
+            "textures": True
+            "useDefaultMaterial": False
+            "wireframeOnShaded": False 
 
     playblast_parameters:
         type: dict
@@ -80,6 +113,11 @@ configuration:
             "quality": 70
             "viewer": False
 
+    use_holdout:
+        type: bool
+        default_value: False
+        description: "Use a hold out shader for playblasts"
+
 # this app works on Maya engines
 # any host application specific commands
 supported_engines: "tk-maya"
@@ -88,7 +126,7 @@ supported_engines: "tk-maya"
 requires_shotgun_fields:
         
 # More verbose description of this item 
-display_name: "Playblast Toolkit"
+display_name: "Playblast..."
 description: "Playblast tool App to quickly render and Submit to Shotgun."
 
 # Required minimum versions for this item to run

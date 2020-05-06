@@ -45,29 +45,25 @@ class PlayblastDialog(QtGui.QWidget):
         self._settings = settings.UserSettings(self._app)
         self.resize(468, 67)
         layout = QtGui.QGridLayout(self)
-        template_label = QtGui.QLabel("Preset Name", self)
-        layout.addWidget(template_label)
-        self.cmb_template_name = QtGui.QComboBox(self)
-        layout.addWidget(self.cmb_template_name, 0, 1)
         self.cmb_percentage = QtGui.QComboBox(self)
-        layout.addWidget(self.cmb_percentage, 0, 2)
+        layout.addWidget(self.cmb_percentage, 0, 0)
         self.chb_create_version = QtGui.QCheckBox("Create New Version", self)
         version_checked = self._settings.retrieve("create_version", default=False)
         self.chb_create_version.setChecked(version_checked)
-        layout.addWidget(self.chb_create_version, 0, 3)
+        layout.addWidget(self.chb_create_version, 0, 1)
         self.chb_upload_to_shotgun = QtGui.QCheckBox("Upload to Shotgun", self)
         upload_checked = self._settings.retrieve("upload_version", default=True)
         self.chb_upload_to_shotgun.setChecked(upload_checked)
         self.chb_upload_to_shotgun.setEnabled(version_checked)
         self.chb_create_version.toggled.connect(self.chb_upload_to_shotgun.setEnabled)
-        layout.addWidget(self.chb_upload_to_shotgun, 0, 4)
+        layout.addWidget(self.chb_upload_to_shotgun, 0, 2)
         self.chb_show_viewer = QtGui.QCheckBox("Show Viewer", self)
         viewer_checked = self._settings.retrieve("show_viewer", default=True)
         self.chb_show_viewer.setChecked(viewer_checked)
-        layout.addWidget(self.chb_show_viewer, 0, 5)
+        layout.addWidget(self.chb_show_viewer, 0, 3)
         self.btn_playblast = QtGui.QPushButton("Playblast", self)
         self.btn_playblast.setMinimumSize(450, 0)
-        layout.addWidget(self.btn_playblast, 1, 0, 1, 6)
+        layout.addWidget(self.btn_playblast, 1, 0, 1, 4)
 
     def _init_components(self):
         # Setting up playblast resolution percentage. Customizable through
@@ -80,19 +76,8 @@ class PlayblastDialog(QtGui.QWidget):
         index = index if index > 0 else 0
         self.cmb_percentage.setCurrentIndex(index)
 
-        template_names = list(self._app.model_editor_templates.keys())
-        self.cmb_template_name.addItems(template_names)
-        setting_template = self._settings.retrieve("model_editor_template")
-        if setting_template:
-            index = self.cmb_template_name.findText(setting_template)
-            index = index if index > 0 else 0
-            self.cmb_template_name.setCurrentIndex(index)
-
     def do_playblast(self):
         override_playblast_params = {}
-
-        template_name = self.cmb_template_name.currentText()
-        self._handler.set_template_name(template_name)
 
         create_version = self.chb_create_version.isChecked()
         self._handler.set_create_version(create_version)
@@ -108,8 +93,6 @@ class PlayblastDialog(QtGui.QWidget):
         self._handler.do_playblast(**override_playblast_params)
 
     def closeEvent(self, event):
-        template_name = self.cmb_template_name.currentText()
-        self._settings.store("model_editor_template", template_name)
         create_version = self.chb_create_version.isChecked()
         self._settings.store("create_version", create_version)
         upload_to_shotgun = self.chb_upload_to_shotgun.isChecked()
