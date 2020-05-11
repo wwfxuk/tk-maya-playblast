@@ -1,6 +1,17 @@
 # expected fields in the configuration file for this engine
 configuration:
 
+    menu_name:
+        type: str
+        default_value: "Playblast..."
+        description: The name that will be shown in the Shotgun menu.
+
+    scale_options:
+        type: list
+        values: {type: int}
+        default_value: [50, 100]
+        description: "The percentage scale values available to the user for playblasting"
+
     template_work:
         type: template
         required_fields: []
@@ -22,16 +33,90 @@ configuration:
     
     hook_setup_window:
         type: hook
-        parameters: [action, data]
         default_value: setup_window
         description: "Specify a hook that will be used to prepare playblast window"
             
     hook_post_playblast:
         type: hook
-        parameters: [source]
         default_value: post_playblast
         description: "Specify a hook that will be executed after actual playblast process"
 
+    model_editor_parameters:
+        type: dict
+        description:
+            "Settings for the model editor.
+            Specify the args as defined in
+            http://help.autodesk.com/cloudhelp/2019/ENU/Maya-Tech-Docs/CommandsPython/modelEditor.html
+            'cam' and 'rendererName', if not defined, are set by the app.
+            'activeView' is not required."
+        default_value:
+            "cameras": False
+            "controlVertices": False
+            "deformers": False
+            "dimensions": False
+            "displayAppearance": "smoothShaded"
+            "displayLights": "default"
+            "displayTextures": True
+            "dynamicConstraints": False
+            "fogging": False
+            "follicles": False
+            "grid": False
+            "handles": False
+            "headsUpDisplay": True
+            "hulls": False
+            "ignorePanZoom": False
+            "ikHandles": False
+            "imagePlane": True
+            "joints": False
+            "lights": False
+            "locators": False
+            "manipulators": False
+            "nurbsCurves": False
+            "nurbsSurfaces": False
+            "pivots": False
+            "planes": False
+            "selectionHiliteDisplay": False
+            "shadows": False
+            "sortTransparent": True
+            "strokes": True
+            "textures": True
+            "useDefaultMaterial": False
+            "wireframeOnShaded": False 
+
+    playblast_parameters:
+        type: dict
+        description:
+            "parameters used for the maya.cmds.playblast command
+            'percent' is overridden by user input"
+        items:
+            "clearCache": {type: bool}
+            "compression":  {type: str}
+            "forceOverwrite":  {type: bool}
+            "format":  {type: str}
+            "framePadding": {type: int}
+            "offScreen": {type: bool}
+            "percent": {type: int}
+            "showOrnaments": {type: bool}
+            "sequenceTime": {type: int}
+            "quality": {type: int}
+            "viewer": {type: bool}
+        default_value:
+            "clearCache": True
+            "compression":  "H.264"
+            "forceOverwrite":  True
+            "format":  "qt"
+            "framePadding": 4
+            "offScreen": True
+            "percent": 100
+            "showOrnaments": True
+            "sequenceTime": 0
+            "quality": 70
+            "viewer": False
+
+    use_holdout:
+        type: bool
+        default_value: False
+        description: "Use a hold out shader for playblasts"
 
 # this app works on Maya engines
 # any host application specific commands
@@ -41,7 +126,7 @@ supported_engines: "tk-maya"
 requires_shotgun_fields:
         
 # More verbose description of this item 
-display_name: "Playblast Toolkit"
+display_name: "Playblast..."
 description: "Playblast tool App to quickly render and Submit to Shotgun."
 
 # Required minimum versions for this item to run
@@ -50,5 +135,6 @@ requires_core_version: "v0.14.28"
 requires_engine_version:
 
 # the frameworks required to run this app
-frameworks:
+frameworks: 
+    - {"name": "tk-framework-shotgunutils", "version": "v5.x.x", "minimum_version": "v5.2.1"}
     
