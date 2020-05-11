@@ -57,8 +57,8 @@ class SetupWindow(HookClass):
 
     def unset_huds(self, huds=[]):
         # restore HUD state
-        map(lambda f: pm.headsUpDisplay(f, edit=True, visible=False), pm.headsUpDisplay(listHeadsUpDisplays=True))
-        map(lambda f: pm.headsUpDisplay(f, edit=True, visible=True), huds)
+        list(map(lambda f: pm.headsUpDisplay(f, edit=True, visible=False), pm.headsUpDisplay(listHeadsUpDisplays=True)))
+        list(map(lambda f: pm.headsUpDisplay(f, edit=True, visible=True), huds))
 
     def get_playblast_params(self, filename=""):
         app = self.parent
