@@ -19,9 +19,14 @@ import pprint
 import sgtk
 
 from datetime import datetime
+
+
+HookClass = sgtk.get_hook_baseclass()
+
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-class PostPlayblast(sgtk.Hook):
+
+class PostPlayblast(HookClass):
     """
     Hook called when a file needs to be copied
     """
@@ -47,7 +52,7 @@ class PostPlayblast(sgtk.Hook):
                 if not os.path.isdir(dirname):
                     os.makedirs(dirname)
                 shutil.copy(source, destination)
-        except:
+        except Exception:
             app.logger.error("Error in copying file %s", source)
         return True
 
@@ -93,7 +98,7 @@ class PostPlayblast(sgtk.Hook):
             movie_path = data["path"]
             result = None
             if os.path.exists(movie_path):
-                app.logger.debug("Uploading movie to Shotgun: %s" % movie_path)
+                app.logger.debug("Uploading movie to Shotgun: %s", movie_path)
                 result = sg.upload("Version", data["version_id"], movie_path, field_name="sg_uploaded_movie")
             return result
         except sgtk.TankError:

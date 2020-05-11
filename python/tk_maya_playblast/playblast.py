@@ -57,7 +57,7 @@ class PlayblastManager(object):
         local_playblast_path = os.path.join(temp_directory, os.path.basename(shot_playblast_path))
         # run actual playblast routine
         self._create_playblast(shot_playblast_path, local_playblast_path, override_playblast_params)
-        self._app.logger.info("Playblast for %s succesful" % scene_name)
+        self._app.logger.info("Playblast for %s succesful", scene_name)
 
     def _create_playblast(self, shot_playblast_path, local_playblast_path, override_playblast_params):
 
@@ -90,14 +90,14 @@ class PlayblastManager(object):
 
                     pm.playblast(**playblast_params)
                     playblast_successful = True
-                except RuntimeError, e:
+                except RuntimeError as error:
                     if os.path.exists(local_playblast_path):
                         playblast_successful = True
                     else:
                         result = QtGui.QMessageBox.critical(
                             None,
                             u"Playblast Error",
-                            unicode(e),
+                            unicode(error),
                             QtGui.QMessageBox.Retry | QtGui.QMessageBox.Abort
                        )
                         if result == QtGui.QMessageBox.Abort:
@@ -154,13 +154,13 @@ class PlayblastManager(object):
         self._app.logger.info("Playblast finished")
 
     def set_upload_to_shotgun(self, value):
-        self._app.logger.debug("Upload to Shotgun set to %s" % value)
+        self._app.logger.debug("Upload to Shotgun set to %s", value)
         self.__upload_to_shotgun = value
 
     def set_create_version(self, value):
-        self._app.logger.debug("Create version set to %s" % value)
+        self._app.logger.debug("Create version set to %s", value)
         self.__create_version = value
 
     def set_shot_viewer(self, value):
-        self._app.logger.debug("Show viewer set to %s" % value)
+        self._app.logger.debug("Show viewer set to %s", value)
         self.__show_viewer = value

@@ -20,10 +20,12 @@ import sgtk
 from sgtk.platform.qt import QtGui
 
 
+HookClass = sgtk.get_hook_baseclass()
+
 PLAYBLAST_WINDOW = "Playblast Window"
 
 
-class SetupWindow(sgtk.Hook):
+class SetupWindow(HookClass):
     """
     Hook called when creating playblast
     """
@@ -32,7 +34,7 @@ class SetupWindow(sgtk.Hook):
         visible_huds = [f for f in pm.headsUpDisplay(listHeadsUpDisplays=True)
                                 if pm.headsUpDisplay(f, query=True, visible=True)]
         # hide all visible HUDs
-        map(lambda f: pm.headsUpDisplay(f, edit=True, visible=False), visible_huds)
+        list(map(lambda f: pm.headsUpDisplay(f, edit=True, visible=False), visible_huds))
 
         # Add required HUD
         # User name
